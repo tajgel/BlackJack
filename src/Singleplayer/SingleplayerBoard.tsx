@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Dealer from "../Dealer";
-import Hand from "../Hand";
+import Dealer from "./Dealer";
+import Hand from "./Hand";
 import { CardType } from "../Types/cards";
 "../App.css"
 
@@ -28,8 +28,11 @@ function SingleplayerBoard() {
       link: `/Cards/${name}_of_${suit}.png`
     })
   )))
-  console.log(fullDeck)
-  const [deck, setDeck] = useState(fullDeck)
+  const [deck, setDeck] = useState<Array<CardType>>(fullDeck)
+  const [hand, setHand] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
+  const [dealer, setDealer] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
+  const [canUseAction, setCanUseAction] = useState(false)
+
 
   function ShuffleDeck(array: Array<CardType>) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -48,20 +51,32 @@ function SingleplayerBoard() {
       let randomIndex = Math.floor(Math.random() * (i + 1)); // Losowy indeks od 0 do i
       [array[i], array[randomIndex]] = [array[randomIndex], array[i]]; // Zamiana miejscami
     }
-    console.log(array);
+    return array
   }
 
   function StartGame(){
-    ShuffleDeck(fullDeck)
+    setDeck(ShuffleDeck(fullDeck))
+    StartRound()
   }
 
-
+  function StartRound(){
+    setDealer([deck[1], deck[2]])
+    setHand([deck[3], deck[4]])
+    setDeck(cards => cards.filter((card) => card !== (cards[1] || cards[2] || cards[3] || cards[4])))
+    while(deck.length!==0){
+      //TODO
+    }
+  }
   return (
     <div>
       {/*fullDeck.map((card) => (<img src={card.link} className="card"/>))*/}
       <button onClick={StartGame}>Start Game</button>
-      <Dealer />
-      <Hand currentDeck={deck} fullDeck={fullDeck}/>
+      <button>HIT</button>
+      <button>STAND</button>
+      <button>SPLIT</button>
+      <button>DOUBLE</button>
+      <Dealer cards={dealer}/>
+      <Hand cards={hand}/>
     </div>
   )
 }
