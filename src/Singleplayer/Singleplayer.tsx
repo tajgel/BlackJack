@@ -2,7 +2,6 @@ import Header from "../App/Header"
 import SingleplayerBoard from "./SingleplayerBoard"
 
 
-
 function Singleplayer() {
   return (
     <div>
