@@ -98,5 +98,13 @@
     width: 5vw;
   }
   
+  .pointsDealer{
+    font-size: 50px;
+    color: white;
+  }
+  .pointsHand{
+    font-size: 50px;
+    color: white;
+  }
   
 }

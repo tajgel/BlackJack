@@ -1,3 +1,19 @@
+//TODO: napraw w funkcji hit to że sama daje wina dealerowi zamiast zmniejszyć wartość asa
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useEffect, useState } from "react";
 import Dealer from "./Dealer";
 import Hand from "./Hand";
@@ -21,13 +37,14 @@ function SingleplayerBoard() {
     { name: "king", value: 10 },
     { name: "ace", value: 11 },
   ]
-  const fullDeck: Array<CardType> = values.flatMap(({ name, value }) => (
+  const unIndexedFullDeck = values.flatMap(({ name, value }) => (
     suits.map((suit) => ({
       value: value,
       suit: suit,
       link: `/Cards/${name}_of_${suit}.png`
     })
     )))
+  const fullDeck: Array<CardType> = unIndexedFullDeck.map((card, index) => ({ id: index, value: card.value, suit: card.suit, link: card.link }))
   const [points, setPoints] = useState(1000)
   const [deck, setDeck] = useState<Array<CardType>>(fullDeck)
   const [hand, setHand] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
@@ -37,7 +54,7 @@ function SingleplayerBoard() {
   const [takenCard, setTakenCard] = useState(0)
   const [flip, setFlip] = useState(true)
   const [refreshPage, setRefreshPage] = useState(false)
-  const [action, setAction] = useState<"" | "hit" | "stand" | "split" | "double" | "start">("")
+  const [action, setAction] = useState("")
   const [canUseAction, setCanUseAction] = useState({
     hit: false,
     split: false,
@@ -48,109 +65,117 @@ function SingleplayerBoard() {
 
   useEffect(() => {
     setCanUseAction({ hit: false, split: false, stand: false, double: false })
-    function reDo() {
-      let tempHand = 0
-      hand.map((card) => { tempHand += card.value })
-      let tempDealer = 0
-      dealer.map((card) => { tempDealer += card.value })
-      console.log(tempDealer)
-      console.log(tempHand)
+    if (action === "won") {
+      return;
+    }
+    let tempHand = 0
+    hand.map((card) => { tempHand += card.value })
+    let tempDealer = 0
+    dealer.map((card) => { tempDealer += card.value })
+    setHandVal(tempHand)
+    if (flip) {
+      setDealerVal(tempDealer - dealer[0].value)
+    }
+    else {
+      setDealerVal(tempDealer)
+    }
+    console.log(tempDealer)
+    console.log(tempHand)
 
+    if (tempDealer > 21) {
+      let aces = dealer.filter(card => card.value === 11).flat()
+      console.log("ASY BRUDASY!!!! ============== ")
+      aces.map((ace) => (console.log(ace)))
+      console.log("ASY BRUDASY!!!! ============== ")
+      let tempDealerVal = tempDealer;
+      for (let i = 0; i < aces.length; i++) {
+        tempDealerVal -= 10
+        if (tempDealerVal < 21) {
+          setHand(hand.map((card) => card.id === aces[i].id ? { ...card, value: 1 } : card))
+          setRefreshPage(!refreshPage)
+          return;
+        }
+      }
+      endRound("you")
+    }
+    else if (tempHand > 21) {
+      let aces = hand.filter(card => card.value === 11).flat()
+      console.log("ASY BRUDASY!!!! ============== ")
+      aces.map((ace) => (console.log(ace)))
+      console.log("ASY BRUDASY!!!! ============== ")
+      let tempHandVal = tempHand;
+      for (let i = 0; i < aces.length; i++) {
+        tempHandVal -= 10
+        if (tempHandVal < 21) {
+          setHand(hand.map((card) => card.id === aces[i].id ? { ...card, value: 1 } : card))
+          setRefreshPage(!refreshPage)
+          return;
+        }
+      }
+      endRound("dealer")
+    }
+    if (action === "start") {
+      if (tempDealer === 21 && tempHand !== 21) {
+        setRefreshPage(!refreshPage)
+        endRound("dealer")
+      }
+      else if (tempHand === 21 && tempDealer !== 21) {
+        setRefreshPage(!refreshPage)
+        endRound("you")
+      }
+      else if (tempDealer === 21 && tempHand === 21) {
+        setRefreshPage(!refreshPage)
+        endRound("draw")
+      }
+      else {
+        setCanUseAction({ split: true, stand: true, hit: true, double: true })
+      }
+    }
+    else if (action === "reshuffle") {
+      setDealer([deck[takenCard], deck[takenCard+1]])
+      setHand([deck[takenCard + 2], deck[takenCard + 3]])
+      setRefreshPage(!refreshPage)
+    }
+    else if (action === "hit") {
+      if (tempHand > 21) {
+        endRound("dealer")
+      }
+      else if (tempHand === 21) {
+        setAction("stand")
+        setRefreshPage(!refreshPage)
+      }
+      else if (tempHand < 21) {
+        setCanUseAction({ split: true, stand: true, hit: true, double: true })
+      }
+      else {
+        console.error("Error in hit checking")
+      }
+    }
+    else if (action === "stand") {
       if (tempDealer > 21) {
-        let aces = dealer.filter(card => card.value === 11).flat()
-        console.log("ASY BRUDASY!!!! ============== ")
-        aces.map((ace) => (console.log(ace)))
-        console.log("ASY BRUDASY!!!! ============== ")
-        for (let i = 0; i > aces.length; i++){
-          aces[i].value = 1
-          if (tempDealer < 21) {
-            return
-          }
-        }
-        if (tempDealer > 21) {
-          endRound("you")
-          return
-        }
-        else if (tempDealer < 21) {
-          return
-        }
-        else {
-          console.error("jakiś error tutaj jest")
-        }
+        endRound("you")
       }
-      else if (tempHand > 21) {
-        let aces = hand.filter(card => card.value === 11).flat()
-        console.log("ASY BRUDASY!!!! ============== ")
-        aces.map((ace) => (console.log(ace)))
-        console.log("ASY BRUDASY!!!! ============== ")
-        for (let i = 0; i > aces.length; i++){
-          aces[i].value = 1
-          if (tempHand < 21) {
-            return
-          }
-        }
-        if (tempHand > 21) {
+      else if (tempDealer >= 17) {
+        
+        if (tempDealer < tempHand) {
           endRound("you")
-          return
         }
-        else if (tempHand < 21) {
-          return
-        }
-        else {
-          console.error("jakiś error tutaj jest")
-        }
-      }
-      if (action === "start") {
-        if (tempDealer === 21 && tempHand !== 21) {
+        else if (tempDealer > tempHand) {
           endRound("dealer")
         }
-        else if (tempHand === 21 && tempDealer !== 21) {
-          endRound("you")
-        }
-        else if (tempDealer === 21 && tempHand === 21) {
+        else if (tempDealer === tempHand) {
           endRound("draw")
         }
         else {
-          setCanUseAction({ split: true, stand: true, hit: true, double: true })
+          console.error("Error in stand checking bigger or equal to 17")
         }
       }
-      else if (action === "hit") {
-        if (tempHand > 21) {
-          endRound("dealer")
-        }
-        else if (tempHand === 21) {
-          endRound("you")
-        }
-        else if (tempHand < 21) {
-          setCanUseAction({ split: true, stand: true, hit: true, double: true })
-        }
-        else {
-          console.error("Error in hit checking")
-        }
-      }
-      else if (action === "stand") {
-        if (tempDealer >= 17) {
-          if (tempDealer < tempHand) {
-            endRound("you")
-          }
-          else if (tempDealer > tempHand) {
-            endRound("dealer")
-          }
-          else if (tempDealer === tempHand) {
-            endRound("draw")
-          }
-          else {
-            console.error("Error in stand checking bigger or equal to 17")
-          }
-        }
-        else if (tempDealer < 17) {
-          setDealer([dealer, deck[takenCard + 4]].flat())
-          setTakenCard(takenCard + 1)
-          setRefreshPage(!refreshPage)
-        }
+      else if (tempDealer < 17) {
+        setDealer([dealer, deck[takenCard + 4]].flat())
+        setTakenCard(takenCard + 1)
+        setRefreshPage(!refreshPage)
       }
     }
-    reDo()
   }, [refreshPage])
 
   function ShuffleDeck(array: Array<CardType>) {
@@ -180,8 +205,15 @@ function SingleplayerBoard() {
 
   function StartRound() {
     setFlip(true)
-    setDealer([deck[1], deck[2]])
-    setHand([deck[3], deck[4]])
+    if (deck.length > 4) {
+      setDealer([deck[takenCard], deck[takenCard+1]])
+      setHand([deck[takenCard+2], deck[takenCard+3]])
+    }
+    else if (deck.length < 4) {
+      setDeck(prev => [prev, ShuffleDeck(fullDeck)].flat())
+      setAction("reshuffle")
+      setRefreshPage(!refreshPage)
+    }
     setDeck(cards => cards.filter((card) => card !== (cards[1] || cards[2] || cards[3] || cards[4])))
     let tempHand = 0
     hand.map((card) => { tempHand += card.value })
@@ -207,21 +239,6 @@ function SingleplayerBoard() {
       setFlip(false);
       setAction("stand")
       setRefreshPage(!refreshPage)
-      // let tempHand = 0
-      // hand.map((card) => { tempHand += card.value })
-      // let tempDealer = 0
-      // dealer.map((card) => { tempDealer += card.value })
-      // if (tempDealer >= 17) {
-      //   if (tempDealer < tempHand) {
-      //     endRound("you")
-      //   }
-      // }
-      // else {
-      //   while (tempDealer < 17) {
-      //     setDealer([dealer, deck[takenCard + 4]].flat())
-      //     setTakenCard(takenCard + 1)
-      //   }
-      // }
     }
   }
 
@@ -280,6 +297,7 @@ function SingleplayerBoard() {
   // }
 
   function endRound(winner: string) {
+    setAction("won")
     setFlip(false)
     if (winner === "dealer") {
       console.log("dealer won!")
@@ -294,7 +312,6 @@ function SingleplayerBoard() {
       console.error("game ERROR")
     }
   }
-
   return (
     <div id="singlePlayerBoard">
       {/*fullDeck.map((card) => (<img src={card.link} className="card"/>))*/}
@@ -306,8 +323,8 @@ function SingleplayerBoard() {
         <button onClick={double}>DOUBLE</button>
       </div>
 
-      <Dealer cards={dealer} flip={flip} />
-      <Hand cards={hand} />
+      <Dealer cards={dealer} flip={flip} points={dealerVal} />
+      <Hand cards={hand} points={handVal} />
     </div>
   )
 }
