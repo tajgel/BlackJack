@@ -1,19 +1,3 @@
-//TODO: napraw w funkcji hit to że sama daje wina dealerowi zamiast zmniejszyć wartość asa
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { useEffect, useState } from "react";
 import Dealer from "./Dealer";
 import Hand from "./Hand";
@@ -46,6 +30,7 @@ function SingleplayerBoard() {
     )))
   const fullDeck: Array<CardType> = unIndexedFullDeck.map((card, index) => ({ id: index, value: card.value, suit: card.suit, link: card.link }))
   const [points, setPoints] = useState(1000)
+  const [bet, setBet] = useState(0)
   const [deck, setDeck] = useState<Array<CardType>>(fullDeck)
   const [hand, setHand] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
   const [dealer, setDealer] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
@@ -253,49 +238,6 @@ function SingleplayerBoard() {
     }
   }
 
-  // function checkConditions(action: string) {
-  //   setCanUseAction({ split: false, stand: false, hit: false, double: false })
-  //   let tempHand = 0
-  //   hand.map((card) => { tempHand += card.value })
-  //   let tempDealer = 0
-  //   dealer.map((card) => { tempDealer += card.value })
-  //   if (action === "hit") {
-  //     if (tempHand > 21) {
-  //       endRound("dealer")
-  //     }
-  //     else if (tempHand === 21) {
-  //       endRound("you")
-  //     }
-  //     else if (tempHand < 21) {
-  //       setCanUseAction({ split: true, stand: true, hit: true, double: true })
-  //     }
-  //     else {
-  //       console.error("Error in hit checking")
-  //     }
-  //   }
-  //   else if (action === "stand") {
-  //     if (tempDealer >= 17) {
-  //       if (tempDealer < tempHand) {
-  //         endRound("you")
-  //       }
-  //       else if (tempDealer > tempHand) {
-  //         endRound("dealer")
-  //       }
-  //       else if (tempDealer === tempHand) {
-  //         endRound("draw")
-  //       }
-  //       else {
-  //         console.error("Error in stand checking bigger or equal to 17")
-  //       }
-  //     }
-  //     else if(tempDealer<17) {
-  //       setDealer([dealer, deck[takenCard + 4]].flat())
-  //       setTakenCard(takenCard + 1)
-  //       checkConditions("stand")
-  //     }
-  //   }
-  // }
-
   function endRound(winner: string) {
     setAction("won")
     setFlip(false)
@@ -314,7 +256,6 @@ function SingleplayerBoard() {
   }
   return (
     <div id="singlePlayerBoard">
-      {/*fullDeck.map((card) => (<img src={card.link} className="card"/>))*/}
       <div id="actions">
         <button onClick={StartGame}>Start Game</button>
         <button onClick={hit}>HIT</button>
@@ -322,8 +263,10 @@ function SingleplayerBoard() {
         <button onClick={split}>SPLIT</button>
         <button onClick={double}>DOUBLE</button>
       </div>
-
+      <img style={{ backgroundColor: "red" }} src="../../chip-50.png"/>
       <Dealer cards={dealer} flip={flip} points={dealerVal} />
+      <p>{points}</p>
+      <input type="number" onChange={event => setBet(Number(event.target.value))}/> 
       <Hand cards={hand} points={handVal} />
     </div>
   )
