@@ -280,8 +280,8 @@ function SingleplayerBoard() {
       </div>
       {/*<img style={{ backgroundColor: "red" }} src="../../chip-50.png"/>*/}
       <Dealer cards={dealer} flip={flip} points={dealerVal} />
-      <p>your cash: {points}$</p>
-      <p>bet: {bet}$</p>
+      <p style={{color: "white"}}>your cash: {points}$</p>
+      <p style={{color: "white"}}>bet: {bet}$</p>
       <input readOnly={isBetted} type="number" onChange={event => setBet(Number(event.target.value))} /> 
       <button onClick={() => setBetted(true)}>bet</button>
       <Hand cards={hand} points={handVal} />
