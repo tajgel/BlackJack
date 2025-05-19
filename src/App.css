@@ -1,49 +1,5 @@
 
-@media screen and (max-width: 500px) {
-  body{
-    z-index: 0;
-    background-color: rgb(39, 39, 39);
-    /* background-image: url("../public/flat-design-poker-table-background_23-2151016809.jpg"); */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    background-color: yellow;
-  }
-  
-  .card{
-    width: 15vw;
-    filter: brightness(100%);
-    transition: filter 0.46s ease-in-out;
-    z-index: 1;
-  }
-  
-  .card:hover{
-    filter: brightness(95%);
-    scale: 110%;
-    z-index: 2;
-    border: 1px solid black;
-    border-radius: 5%;
-  }
-  
-  #hand{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: red;
-  }
-  
-  #dealer{
-    background-color: blue;
-  }
-  
-  #singlePlayerBoard{
-    margin-top: 40vh;
-  }
-  
-}
-
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 0px) {
   body{
     margin: 0;
     padding: 0;
@@ -73,7 +29,7 @@
   }
   
   #hand{
-    margin-top: 40vh;
+    margin-top: 20%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -88,14 +44,14 @@
     
   }
   #actions{
-    margin-left: 50vw;
+    display: flex;
     justify-content: flex-end;
     background-color: rgb(255, 255, 255);
   }
 
   #actions button{
     border-radius: 20px;
-    width: 5vw;
+    width: fit-content;
   }
   
   .pointsDealer{
@@ -106,5 +62,10 @@
     font-size: 50px;
     color: white;
   }
-  
+  #singlePlayerBoard{
+    margin-top: 30%;
+    scale: 130%;
+  }
+
+
 }

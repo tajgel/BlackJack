@@ -31,6 +31,7 @@ function SingleplayerBoard() {
   const fullDeck: Array<CardType> = unIndexedFullDeck.map((card, index) => ({ id: index, value: card.value, suit: card.suit, link: card.link }))
   const [points, setPoints] = useState(1000)
   const [bet, setBet] = useState(0)
+  const [isBetted, setBetted] = useState(false)
   const [deck, setDeck] = useState<Array<CardType>>(fullDeck)
   const [hand, setHand] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
   const [dealer, setDealer] = useState<Array<CardType>>([fullDeck[1], fullDeck[2]])
@@ -76,12 +77,13 @@ function SingleplayerBoard() {
       for (let i = 0; i < aces.length; i++) {
         tempDealerVal -= 10
         if (tempDealerVal < 21) {
-          setHand(hand.map((card) => card.id === aces[i].id ? { ...card, value: 1 } : card))
+          setDealer(hand.map((card) => card.id === aces[i].id ? { ...card, value: 1 } : card))
           setRefreshPage(!refreshPage)
           return;
         }
       }
       endRound("you")
+      return;
     }
     else if (tempHand > 21) {
       let aces = hand.filter(card => card.value === 11).flat()
@@ -98,8 +100,9 @@ function SingleplayerBoard() {
         }
       }
       endRound("dealer")
+      return;
     }
-    if (action === "start") {
+    else if (action === "start") {
       if (tempDealer === 21 && tempHand !== 21) {
         setRefreshPage(!refreshPage)
         endRound("dealer")
@@ -184,6 +187,12 @@ function SingleplayerBoard() {
   }
 
   function StartGame() {
+    if (bet <= 0) {
+      alert("bet must be bigger than 0$")
+      setBetted(false)
+      return;
+    }
+    if (!isBetted) return;
     setDeck(ShuffleDeck(deck))
     StartRound()
   }
@@ -243,16 +252,22 @@ function SingleplayerBoard() {
     setFlip(false)
     if (winner === "dealer") {
       console.log("dealer won!")
+      setPoints(prev => prev - bet)
+      setBet(0)
     }
     else if (winner === "you") {
       console.log("you won!")
+      setPoints(prev => prev + bet * 2)
+      setBet(0)
     }
     else if (winner === "draw") {
       console.log("draw")
+      setBet(0)
     }
     else {
       console.error("game ERROR")
     }
+    setBetted(false)
   }
   return (
     <div id="singlePlayerBoard">
@@ -263,10 +278,12 @@ function SingleplayerBoard() {
         <button onClick={split}>SPLIT</button>
         <button onClick={double}>DOUBLE</button>
       </div>
-      <img style={{ backgroundColor: "red" }} src="../../chip-50.png"/>
+      {/*<img style={{ backgroundColor: "red" }} src="../../chip-50.png"/>*/}
       <Dealer cards={dealer} flip={flip} points={dealerVal} />
-      <p>{points}</p>
-      <input type="number" onChange={event => setBet(Number(event.target.value))}/> 
+      <p>your cash: {points}$</p>
+      <p>bet: {bet}$</p>
+      <input readOnly={isBetted} type="number" onChange={event => setBet(Number(event.target.value))} /> 
+      <button onClick={() => setBetted(true)}>bet</button>
       <Hand cards={hand} points={handVal} />
     </div>
   )
