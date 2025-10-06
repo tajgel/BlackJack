@@ -1,1 +1,1 @@
-działający [Blackjack](https://blackjacksingelplayer.netlify.app/) singleplayer
+działający <a href="https://blackjacksingelplayer.netlify.app" target="_blank">Blackjack</a> singleplayer
